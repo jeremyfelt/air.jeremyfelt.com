@@ -1,0 +1,17 @@
+[
+  {
+    "DateObserved": "2019-03-22 ",
+    "HourObserved": 16,
+    "LocalTimeZone": "PST",
+    "ReportingArea": "Pullman",
+    "StateCode": "WA",
+    "Latitude": 46.7245,
+    "Longitude": -117.1801,
+    "ParameterName": "PM2.5",
+    "AQI": 13,
+    "Category": {
+      "Number": 1,
+      "Name": "Good"
+    }
+  }
+]

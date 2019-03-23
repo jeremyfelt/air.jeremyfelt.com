@@ -1,0 +1,45 @@
+body {
+    color: #444;
+    background: #fefefe;
+}
+
+.wrapper {
+    width: 100%;
+}
+
+.container {
+    max-width: 60%;
+    text-align: center;
+    margin: 6em auto 0;
+}
+
+.my-aqi,
+.my-category {
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.my-aqi {
+    font-size: 13em;
+}
+
+.my-category {
+    font-size: 4.5em;
+}
+
+.my-time {
+    margin-top: 1em;
+    font-size: 1em;
+}
+
+h1 {
+    font-size: 2.5em
+}
+
+@media (max-width: 640px ) {
+
+    .container {
+        max-width: 90%;
+    }
+}
