@@ -4,7 +4,9 @@
   "description": "My current air quality",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "wp-scripts build",
+    "lint": "wp-scripts lint-js",
+    "fix": "wp-scripts lint-js --fix"
   },
   "repository": {
     "type": "git",
@@ -17,7 +19,9 @@
   },
   "homepage": "https://github.com/jeremyfelt/My-Air-Now#readme",
   "dependencies": {
+    "@wordpress/scripts": "^24.0.0",
     "airnow": "^1.0.2",
-    "dotenv": "^16.0.2"
+    "dotenv": "^16.0.2",
+    "luxon": "^3.0.3"
   }
 }
