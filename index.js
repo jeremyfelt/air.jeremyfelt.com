@@ -1,13 +1,6 @@
-let airnow = require( "airnow" );
 let fs = require( "fs" );
 
 require( "dotenv" ).config();
-
-function getAirClient() {
-	let api_key = process.env.API_KEY;
-
-	return airnow( { apiKey: api_key } );
-}
 
 /**
  * Handle the data last observed at an air quality point.
@@ -54,9 +47,20 @@ function handleLastData( error, observation ) {
 
 function getLastData() {
 	let postal_code = process.env.POSTAL_CODE;
-	let client = getAirClient();
-	client.getObservationsByZipCode( { zipCode: postal_code }, handleLastData );
-}
+	let api_key = process.env.API_KEY;
 
+	const url = 'https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=' + postal_code + '&distance=5&API_KEY=' + api_key;
+
+	fetch( url)
+	.then( ( response ) => {
+		return response.json();
+	} )
+	.then( ( data ) => {
+		handleLastData( null, data );
+	} )
+	.catch( ( error ) =>{
+	  console.log( err );
+	} );
+}
 
 getLastData();

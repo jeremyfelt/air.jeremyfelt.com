@@ -1,5 +1,5 @@
 {
-  "name": "my-air-now",
+  "name": "air.jeremyfelt.com",
   "version": "0.0.1",
   "description": "My current air quality",
   "main": "index.js",
@@ -8,21 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jeremyfelt/My-Air-Now.git"
+    "url": "git+https://github.com/jeremyfelt/air.jeremyfelt.com.git"
   },
   "author": "jeremyfelt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jeremyfelt/My-Air-Now/issues"
+    "url": "https://github.com/jeremyfelt/air.jeremyfelt.com/issues"
   },
-  "homepage": "https://github.com/jeremyfelt/My-Air-Now#readme",
+  "homepage": "https://github.com/jeremyfelt/air.jeremyfelt.com#readme",
   "dependencies": {
-    "airnow": "^1.0.2",
     "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "grunt": "^1.6.1",
-    "grunt-contrib-connect": "^4.0.0",
-    "grunt-contrib-watch": "^1.1.0"
   }
 }

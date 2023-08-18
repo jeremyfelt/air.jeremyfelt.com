@@ -1,22 +1,108 @@
 <html lang="en">
+
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=EDGE">
-    <meta charset="UTF-8">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>My Air Now</title>
+	<title>My Air Now</title>
 
-    <meta name="viewport" content="width=device-width, user-scalable=yes">
-    <link rel="stylesheet" href="src/css/style.css" type="text/css" />
+	<style>
+		body {
+			color: #444;
+			background: #fefefe;
+		}
+
+		.wrapper {
+			width: 100%;
+		}
+
+		.container {
+			max-width: 60%;
+			text-align: center;
+			margin: 6em auto 0;
+		}
+
+		.my-aqi,
+		.my-category {
+			padding: 0;
+			margin: 0;
+			line-height: 1;
+		}
+
+		.my-aqi {
+			font-size: 13em;
+		}
+
+		.my-category {
+			font-size: 4.5em;
+		}
+
+		.my-time {
+			margin-top: 1em;
+			font-size: 1em;
+		}
+
+		h1 {
+			font-size: 2.5em
+		}
+
+		@media (max-width: 640px) {
+
+			.container {
+				max-width: 90%;
+			}
+		}
+	</style>
 </head>
+
 <body>
-<div class="wrapper">
-    <div class="container">
-        <h1>My air now in <span class="my-location"></span></h1>
-        <div class="my-aqi"></div>
-        <div class="my-category"></div>
-        <div class="my-time"></div>
-    </div>
-</div>
-<script type="text/javascript" src="src/js/display.js" ></script>
+	<div class="wrapper">
+		<div class="container">
+			<h1>My air now in <span class="my-location"></span></h1>
+			<div class="my-aqi"></div>
+			<div class="my-category"></div>
+			<div class="my-time"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		{
+			fetch('data/last-observation.json')
+				.then(response => {
+					return response.json();
+				})
+				.then(data => {
+
+					const [
+						year,
+						month,
+						day
+					] = data[0].DateObserved.split("-");
+					const hour = data[0].HourObserved;
+					const dateObj = new Date(year, month - 1, day, hour, 0, 0);
+
+					const options = {
+						weekday: 'short',
+						month: 'short',
+						day: 'numeric',
+						year: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric',
+						second: 'numeric',
+						timeZoneName: 'long'
+					};
+
+					const formattedDate = dateObj.toLocaleString('en-US', options);
+
+					document.querySelector('.my-aqi').innerText = data[0].AQI;
+					document.querySelector('.my-category').innerText = data[0].Category.Name;
+					document.querySelector('.my-location').innerText = data[0].ReportingArea + ", " + data[0].StateCode;
+					document.querySelector('.my-time').innerText = formattedDate;
+				})
+				.catch(error => {
+					console.log(error);
+				});
+		}
+	</script>
 </body>
+
 </html>
