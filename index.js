@@ -28,6 +28,7 @@ function getAirClient() {
  */
 function handleLastData( error, observation ) {
 	if ( observation.length === 0 ) {
+		console.log( 'empty' );
 		return;
 	}
 
