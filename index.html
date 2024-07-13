@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>My Air Now</title>
-
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<style>
 		body {
 			color: #444;
@@ -46,6 +46,15 @@
 			font-size: 2.5em
 		}
 
+		h2 {
+			font-size: 2em;
+			margin-top: 2em;
+		}
+
+		canvas {
+			margin-top: 2rem;
+		}
+
 		@media (max-width: 640px) {
 
 			.container {
@@ -58,50 +67,160 @@
 <body>
 	<div class="wrapper">
 		<div class="container">
-			<h1>My air now in <span class="my-location"></span></h1>
+			<h1>My air now in Pullman, WA</h1>
 			<div class="my-aqi"></div>
 			<div class="my-category"></div>
 			<div class="my-time"></div>
+			<h2>Past air quality</h2>
+			<canvas id="week-chart"></canvas>
+			<canvas id="month-chart"></canvas>
 		</div>
 	</div>
+
 	<script type="text/javascript">
-		{
-			fetch('data/last-observation.json')
-				.then(response => {
-					return response.json();
-				})
-				.then(data => {
+{
+document.addEventListener('DOMContentLoaded', function() {
+	fetch('data/30-days-observations.json')
+		.then(response => response.json())
+		.then(data => {
+			displayLatestObservation(data[0]);
+			createWeekChart(data);
+			createMonthChart(data);
 
-					const [
-						year,
-						month,
-						day
-					] = data[0].DateObserved.split("-");
-					const hour = data[0].HourObserved;
-					const dateObj = new Date(year, month - 1, day, hour, 0, 0);
+		})
+		.catch(error => {
+			console.log(error);
+		});
+});
 
-					const options = {
-						weekday: 'short',
-						month: 'short',
-						day: 'numeric',
-						year: 'numeric',
-						hour: 'numeric',
-						minute: 'numeric',
-						second: 'numeric',
-						timeZoneName: 'long'
-					};
+function displayLatestObservation(latestData) {
+	const [year, month, day] = latestData.DateObserved.split("-");
+	const hour = latestData.HourObserved;
+	const dateObj = new Date(year, month - 1, day, hour, 0, 0);
+	const options = {
+		weekday: 'short',
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric',
+		timeZoneName: 'long'
+	};
+	const formattedDate = dateObj.toLocaleString('en-US', options);
 
-					const formattedDate = dateObj.toLocaleString('en-US', options);
+	document.querySelector('.my-aqi').innerText = latestData.AQI;
+	document.querySelector('.my-category').innerText = latestData.Category.Name;
+	document.querySelector('.my-time').innerText = formattedDate;
+}
 
-					document.querySelector('.my-aqi').innerText = data[0].AQI;
-					document.querySelector('.my-category').innerText = data[0].Category.Name;
-					document.querySelector('.my-location').innerText = data[0].ReportingArea + ", " + data[0].StateCode;
-					document.querySelector('.my-time').innerText = formattedDate;
-				})
-				.catch(error => {
-					console.log(error);
-				});
+const createWeekChart = (data) => {
+	const chartData = data.slice(0,168).reverse();
+	const labels = chartData.map(item => item.HourObserved);
+	const aqiValues = chartData.map(item => item.AQI);
+
+	const context = document.getElementById('week-chart').getContext('2d');
+
+	new Chart(context, {
+		type: 'bar',
+		data: {
+			labels: labels,
+			datasets: [{
+				label: 'AQI',
+				data: aqiValues,
+				backgroundColor: aqiValues.map(getColorForAQI),
+				borderColor: 'rgba(0, 0, 0, 0.2)',
+				borderWidth: 1
+			}]
+		},
+		options: {
+			responsive: true,
+			scales: {
+				y: {
+					beginAtZero: true,
+					title: {
+						display: true,
+						text: 'Air Quality Index (AQI)'
+					}
+				},
+				x: {
+					title: {
+						display: true,
+						text: 'Hour'
+					}
+				}
+			},
+			plugins: {
+				title: {
+					display: true,
+					text: 'AQI, last 7 days'
+				},
+				legend: {
+					display: false
+				}
+			}
 		}
+	});
+}
+
+const createMonthChart = (data) => {
+	const chartData = data.reverse();
+	const labels = chartData.map(item => item.DateObserved.trim());
+	const aqiValues = chartData.map(item => item.AQI);
+
+	const context = document.getElementById('month-chart').getContext('2d');
+
+	new Chart(context, {
+		type: 'bar',
+		data: {
+			labels: labels,
+			datasets: [{
+				label: 'AQI',
+				data: aqiValues,
+				backgroundColor: aqiValues.map(getColorForAQI),
+				borderColor: 'rgba(0, 0, 0, 0.2)',
+				borderWidth: 1
+			}]
+		},
+		options: {
+			responsive: true,
+			scales: {
+				y: {
+					beginAtZero: true,
+					title: {
+						display: true,
+						text: 'Air Quality Index (AQI)'
+					}
+				},
+				x: {
+					title: {
+						display: true,
+						text: 'Date'
+					}
+				}
+			},
+			plugins: {
+				title: {
+					display: true,
+					text: 'AQI, last 30 days'
+				},
+				legend: {
+					display: false
+				}
+			}
+		}
+	});
+}
+
+const getColorForAQI = (aqi) => {
+	if (aqi <= 50) return 'rgba(0, 228, 0, 0.7)';      // Good
+	if (aqi <= 100) return 'rgba(255, 255, 0, 0.7)';   // Moderate
+	if (aqi <= 150) return 'rgba(255, 126, 0, 0.7)';   // Unhealthy for Sensitive Groups
+	if (aqi <= 200) return 'rgba(255, 0, 0, 0.7)';     // Unhealthy
+	if (aqi <= 300) return 'rgba(143, 63, 151, 0.7)';  // Very Unhealthy
+	return 'rgba(126, 0, 35, 0.7)';                    // Hazardous
+}
+}
 	</script>
 </body>
 

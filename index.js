@@ -38,16 +38,67 @@ function handleLastData( error, observation ) {
 
 	logFile = JSON.stringify( logFile );
 
-	fs.writeFile( "data/observations.json", logFile, function( error ) {
-		if ( error ) {
-			console.log( error );
+	// Update the full list of historical observations.
+	updateObservationsLog( observation[0] );
+}
+
+function updateObservationsLog(newObservation) {
+	fs.readFile('data/observations.json', (err, data) => {
+		if (err) {
+			console.log(err);
+			return;
 		}
-	} );
+
+		// Remove extraneous properties.
+		delete newObservation.LocalTimeZone;
+		delete newObservation.ReportingArea;
+		delete newObservation.StateCode;
+		delete newObservation.Latitude;
+		delete newObservation.Longitude;
+		delete newObservation.ParameterName;
+
+		let logFile = JSON.parse(data.toString() || '[]');
+
+		const uniqueKey = `${newObservation.DateObserved.trim()}-${newObservation.HourObserved}`;
+
+		const index = logFile.findIndex(obs =>
+			`${obs.DateObserved.trim()}-${obs.HourObserved}` === uniqueKey
+		);
+
+		if (index === -1) {
+			logFile.push(newObservation);
+		} else {
+			logFile[index] = newObservation;
+		}
+
+		// Optional: Sort the array by date and hour
+		logFile.sort((a, b) => {
+			const dateA = new Date(a.DateObserved + ' ' + a.HourObserved + ':00');
+			const dateB = new Date(b.DateObserved + ' ' + b.HourObserved + ':00');
+			return dateB - dateA; // Descending order
+		});
+
+		// Capture the last 30 days for a smaller file used to display a chart.
+		const maxEntries = 720;
+		let chartdata = logFile.slice(0, maxEntries);
+
+		fs.writeFile("data/observations.json", JSON.stringify(logFile, null, 2), function (error) {
+			if (error) {
+				console.log(error);
+			}
+		});
+
+		fs.writeFile("data/30-days-observations.json", JSON.stringify(chartdata, null, 2), function (error) {
+			if (error) {
+				console.log(error);
+			}
+		});
+	});
 }
 
 function getLastData() {
 	let postal_code = process.env.POSTAL_CODE;
-	let api_key = process.env.API_KEY;
+	  let api_key = process.env.API_KEY;
 
 	const url = 'https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=' + postal_code + '&distance=5&API_KEY=' + api_key;
 
@@ -59,7 +110,7 @@ function getLastData() {
 		handleLastData( null, data );
 	} )
 	.catch( ( error ) =>{
-	  console.log( err );
+	  console.log( error );
 	} );
 }
 
